@@ -1,6 +1,6 @@
-# GreenplumDB
+# Cloudberry
 
-This is the docker contianer for starting a GreenplumDB 7 cluster.
+This is the docker contianer for starting a Cloudberry 7 cluster.
 https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/landing-index.html
 
 Note: After the creation of a cluster, it is required to initialize the cluster using the functions in `$GPHOME/entrypoint.sh`.

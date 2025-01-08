@@ -1,14 +1,14 @@
-# GPDB安装文档
+# Cloudberry安装文档
 
-本文档介绍GPDB的安装，以目前Github上开源的最新版本为例。
+本文档介绍Cloudberry的安装，以目前Github上开源的最新版本为例。
 
-GPDB集群为主从模式，主结点称为master结点或者coordinator结点，从结点称为segment结点。
+Cloudberry集群为主从模式，主结点称为master结点或者coordinator结点，从结点称为segment结点。
 
 ## 准备工作（均为必须）
 
 ### 1.1 建立用户gpadmin
 
-在每台服务器上，为GPDB创建新用户：gpadmin，并为该用户设置初始密码，并建立密钥：
+在每台服务器上，为Cloudberry创建新用户：gpadmin，并为该用户设置初始密码，并建立密钥：
 
 ```shell
 USERNAME=gpadmin \
@@ -32,7 +32,7 @@ ssh-keygen -t rsa -b 4096 -N "" -C `hostname` -f ~/.ssh/id_rsa
 
 在主节点上，也即第1台服务器上，授权通过ssh访问各台服务器：
 建议先安装sshpass: apt-get install sshpass，然后再从第1台服务器上执行下面的命令（最后一个参数为主机名）
-```sshpass -p "P@ssw0rd!" ssh-copy-id -o StrictHostKeyChecking=no gpadmin@GPDB-001```
+```sshpass -p "P@ssw0rd!" ssh-copy-id -o StrictHostKeyChecking=no gpadmin@Cloudberry-001```
 
 ### 1.3 安装依赖
 
@@ -58,15 +58,15 @@ sudo pip3 install conan
 
 ```txt
 # IP Address    Node Name
-30.23.109.100   GPDB-001
-30.23.109.101   GPDB-002
-30.23.109.102   GPDB-003
+30.23.109.100   Cloudberry-001
+30.23.109.101   Cloudberry-002
+30.23.109.102   Cloudberry-003
 ```
 
-## 2 编译安装GPDB
+## 2 编译安装Cloudberry
 
-在第一台服务器上，以gpadmin用户，从gpdb的源代码编译安装GPDB到/opt/gpdb/
-本例中，下载的源代码来自于gpdb官方代码库的master branch: https://github.com/greenplum-db/gpdb.git
+在第一台服务器上，以gpadmin用户，从Cloudberry的源代码编译安装Cloudberry到/opt/gpdb/
+本例中，下载的源代码来自于Cloudberry官方代码库的master branch: https://github.com/apache/cloudberry.git
 master branch编译出的版本为基于PostgreSQL 12.x的版本，且该版本可以只使用Python3。
 
 ### 2.1 准备Python依赖
@@ -80,9 +80,9 @@ sudo bash ./Miniconda3-latest-Linux-x86_64.sh -f -b -p /opt/conda \
 && echo "export PATH=/opt/conda/bin:$PATH" >> ~/.bashrc
 ```
 
-### 2.2 编译GPDB源代码
+### 2.2 编译Cloudberry源代码
 
-下载解压GPDB源代码之后，进入源代码目录，进行编译配置（注意这里设置了prefix及PYTHON的路径）：
+下载解压Cloudberry源代码之后，进入源代码目录，进行编译配置（注意这里设置了prefix及PYTHON的路径）：
 
 ```shell
 # Configure the project first
@@ -96,7 +96,7 @@ sudo make -j16 && sudo make install -j16
 sudo chown -R gpadmin:gpadmin /opt/gpdb
 ```
 
-### 2.3 配置GPDB的路径
+### 2.3 配置Cloudberry的路径
 
 在gpadmin用户下，执行下面的命令，使gpadmin登录后能默认找到GBDP各组件，如gpssh、gpscp等。
 
@@ -106,7 +106,7 @@ echo "source /opt/gpdb/greenplum_path.sh" >> ~/.bashrc
 
 ### 2.4 将GDPB自带的python模块软链接到Python的包目录
 
-GPDB自带了一个名为`gppylib`的Python包，用来管理和控制GPDB。通过下面的步骤，使默认的Python能够找到该包。
+Cloudberry自带了一个名为`gppylib`的Python包，用来管理和控制Cloudberry。通过下面的步骤，使默认的Python能够找到该包。
 
 ```shell
 PYTHON_SITE=$(python3 -c 'import sys;print(list(filter(lambda s: "site" in s, sys.path))[0])') \
@@ -115,26 +115,26 @@ PYTHON_SITE=$(python3 -c 'import sys;print(list(filter(lambda s: "site" in s, sy
 
 ### 2.5. 配置服务器列表文件
 
-在第1台服务器上，安装gpdb目录文件到/opt/gpdb之后，进行下面的操作：
+在第1台服务器上，安装Cloudberry目录文件到/opt/gpdb之后，进行下面的操作：
 
 创建服务器ID列表文件：在/opt/gpdb/conf目录下创建下面的两个文件（hostlist和seg_host）
 
 ```txt
 # hostlist
-GPDB-001
-GPDB-002
-GPDB-003
+Cloudberry-001
+Cloudberry-002
+Cloudberry-003
 ```
 
 ```txt
 # seg_host
-GPDB-002
-GPDB-003
+Cloudberry-002
+Cloudberry-003
 ```
 
 ### 2.6 授权服务器之间SSH互访
 
-在第1台服务器上，通过下面的命令，来进行各主机之间的ssh访问互通，然后将编译好的gpdb目录复制到各个服务器上：
+在第1台服务器上，通过下面的命令，来进行各主机之间的ssh访问互通，然后将编译好的Cloudberry目录复制到各个服务器上：
 
 ```bash
 gpssh-exkeys -f hostlist
@@ -149,7 +149,7 @@ gpscp -f seg_host /opt/conda /opt/gpdb =:~/
 例如通过下面的echo命令来追加到/etc/hosts文件（参照步骤1.4）：
 
 ```shell
-sudo echo "30.23.109.100  GPDB-001" >> /etc/hosts
+sudo echo "30.23.109.100  Cloudberry-001" >> /etc/hosts
 ```
 
 ### 2.8. 修改Linux系统配置
@@ -201,45 +201,45 @@ vm.dirty_background_bytes = 1610612736
 vm.dirty_bytes = 4294967296
 ```
 
-## 3 准备启动GPDB集群
+## 3 准备启动Cloudberry集群
 
-### 3.1 创建GPDB初始化配置文件
+### 3.1 创建Cloudberry初始化配置文件
 
-这里需要创建GPDB配置的初始化选项文件，然后配置启动选项，主要关注DATA_DIRECTORY和MIRROR_DATA_DIRECTORY两个选项。
+这里需要创建Cloudberry配置的初始化选项文件，然后配置启动选项，主要关注DATA_DIRECTORY和MIRROR_DATA_DIRECTORY两个选项。
 
-初始化的文件模板可以通过GPDB自带的文件，基于此进行修改：
+初始化的文件模板可以通过Cloudberry自带的文件，基于此进行修改：
 
 ```shell
 mkdir -pv /opt/gpdb/conf
 cp /opt/gpdb/docs/cli_help/gpconfigs/gpinitsystem_config /opt/gpdb/conf/gpinitsystem_config
-mkdir -pv /data/gpdb/coordinator
-mkdir -pv /data/gpdb/primary1 /data/gpdb/primary2 /data/gpdb/mirror1 /data/gpdb/mirror2
+mkdir -pv /data/Cloudberry/coordinator
+mkdir -pv /data/Cloudberry/primary1 /data/Cloudberry/primary2 /data/Cloudberry/mirror1 /data/Cloudberry/mirror2
 ```
 
 注意，在下面配置文件中的目录，各个目录名都需要预先创建好。
-同时也需要规划好磁盘空间，例如上面的`/data/gpdb`目录，将来就会用来作为数据存储空间，需要预留一定磁盘空间。
+同时也需要规划好磁盘空间，例如上面的`/data/Cloudberry`目录，将来就会用来作为数据存储空间，需要预留一定磁盘空间。
 
 配置文件具体配置项如下：
 
 ```conf
 #集群名称
-ARRAY_NAME="GPDB"
+ARRAY_NAME="Cloudberry"
 
 SEG_PREFIX="gpseg"
 
 MACHINE_LIST_FILE="/opt/gpdb/conf/seg_host"
 
 # Master结点主机名
-COORDINATOR_HOSTNAME=GPDB-001
+COORDINATOR_HOSTNAME=Cloudberry-001
 
 #master的数据目录
-COORDINATOR_DIRECTORY=/data/gpdb/coordinator
+COORDINATOR_DIRECTORY=/data/Cloudberry/coordinator
 
 #指定primary segment的数据目录，网上写的是多个相同目录，多个目录表示一台机器有多个segment
-declare -a DATA_DIRECTORY=(/data/gpdb/primary1 /data/gpdb/primary1 /data/gpdb/primary1 /data/gpdb/primary2 /data/gpdb/primary2 /data/gpdb/primary2)
+declare -a DATA_DIRECTORY=(/data/Cloudberry/primary1 /data/Cloudberry/primary1 /data/Cloudberry/primary1 /data/Cloudberry/primary2 /data/Cloudberry/primary2 /data/Cloudberry/primary2)
 
 # mirror的数据目录，和主数据一样，一个对一个，多个对多个
-declare -a MIRROR_DATA_DIRECTORY=(/data/gpdb/mirror1 /data/gpdb/mirror1 /data/gpdb/mirror1 /data/gpdb/mirror2 /data/gpdb/mirror2 /data/gpdb/mirror2)
+declare -a MIRROR_DATA_DIRECTORY=(/data/Cloudberry/mirror1 /data/Cloudberry/mirror1 /data/Cloudberry/mirror1 /data/Cloudberry/mirror2 /data/Cloudberry/mirror2 /data/Cloudberry/mirror2)
 ```
 
 ### 3.2 执行数据初始化
@@ -253,7 +253,7 @@ gpinitsystem -c gpinitsystem_config
 ### 3.3 集群基本配置
 
 完成上述步骤之后，集群即启动完成，可以通过master结点的IP和端口进行连接。下面进行一下初始化操作：
-在master结点上，进入到目录`/data/gpdb/coordinator/gpseg-1/`，修改配置文件`pg_hba.conf`使得客户端能连接到GPDB的master结点。如果需要允许任何IP访问，添加下面一行即可：
+在master结点上，进入到目录`/data/Cloudberry/coordinator/gpseg-1/`，修改配置文件`pg_hba.conf`使得客户端能连接到Cloudberry的master结点。如果需要允许任何IP访问，添加下面一行即可：
 
 ```conf
 host  all  all 0.0.0.0/0 trust
@@ -261,7 +261,7 @@ host  all  all 0.0.0.0/0 trust
 
 然后执行`pg_ctl reload -D ./`
 
-### 3.4 为GPDB配置用户
+### 3.4 为Cloudberry配置用户
 
 之后从master服务器的本地连接到集群，为gpadmin用户修改密码，之后即可从其他服务器连接访问集群。
 

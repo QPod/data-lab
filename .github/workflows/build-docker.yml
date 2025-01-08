@@ -34,6 +34,15 @@ jobs:
           build_image bigdata latest docker_bigdata/Dockerfile --build-arg "ARG_PROFILE_JAVA=base"  --build-arg "VERSION_JDK=11"
           push_image
 
+  qpod_cloudberry:
+    name: "cloudberry"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          source ./tool.sh
+          build_image cloudberry latest   docker_cloudberry/Dockerfile && push_image
+
   qpod_elasticsearch:
     name: "elasticsearch"
     runs-on: ubuntu-latest
